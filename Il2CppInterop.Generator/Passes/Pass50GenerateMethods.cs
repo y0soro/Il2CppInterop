@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AsmResolver.DotNet;
 using AsmResolver.DotNet.Code.Cil;
 using AsmResolver.DotNet.Signatures;
@@ -120,9 +121,11 @@ public static class Pass50GenerateMethods
                         }
 
                         var newParam = newMethod.Parameters[i];
+                        var orignalParam = originalMethod.Parameters[i];
+                        // TODO: create a default instance for Il2CppSystem.ValueType wrapped value type
                         // NOTE(Kas): out parameters of value type are passed directly as a pointer to the il2cpp method
                         // since we don't need to perform any additional copies
-                        if (newParam.Definition!.IsOut && !newParam.ParameterType.GetElementType().IsValueType())
+                        if (newParam.Definition!.IsOut && newParam.ParameterType is ByReferenceTypeSignature && !newParam.ParameterType.GetElementType().IsValueType())
                         {
                             var elementType = newParam.ParameterType.GetElementType();
 
